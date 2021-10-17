@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+          integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" rel="stylesheet">
+    <title>New Post</title>
+</head>
+<body>
+<h1 align="center">New Post</h1><br>
+<div align="center">
+    <form th:action="@{/save}" method="POST">
+        <table border="0" cellpadding="10">
+            <th:block th:object="${post}">
+                <tr>
+                    <td>Title</td>
+                    <td><input type="text" th:field="*{title}" required></td>
+                </tr>
+                <tr>
+                    <td>Content</td>
+                    <td><textarea th:field="*{content}" required></textarea></td>
+                </tr>
+                <tr>
+                    <td>Enter Tag</td>
+                    <td>
+                        <input type="text" name="tagString" th:field="${post.tagString}"
+                               placeholder="Enter tags here space separated"/>
+                    </td>
+                </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit">Publish</button>
+                </td>
+            </tr>
+            </th:block>
+        </table>
+    </form>
+</div>
+<script crossorigin="anonymous"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js">
+</script>
+</body>
+</html>
+
+
+
+

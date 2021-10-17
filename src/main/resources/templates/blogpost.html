@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org " xmlns:cell-padding="http://www.w3.org/1999/xhtml"
+      xmlns:border="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Home page</title>
+  <link crossorigin="anonymous"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        rel="stylesheet">
+</head>
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    width: 100%;
+    position: relative;
+    font-family: 'poppins', sans-serif;
+}
+.blog-heading {
+  display: flex;
+}
+.blog-heading h1 {
+  flex-grow: 1;
+}
+.blog-heading h4 {
+  margin-left: 20px;
+}
+a.button5{
+    display:inline-block;
+    padding:0.46em 1.6em;
+    border:0.1em solid #000000;
+    margin:0 0.2em 0.2em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    color:#000000;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+    background-color:#FFFFFF;
+    text-align:center;
+    transition: all 0.15s;
+}
+a.button5:hover{
+    text-shadow: 0 0 2em rgba(255,255,255,1);
+    color:#FFFFFF;
+    border-color:#FFFFFF;
+}
+.blog-post-comment{
+  border: none;
+  cell-padding: 2px;
+}
+</style>
+<body>
+  <table border="solid" cellpadding="10">
+    <tr>
+      <div class="blog-card">
+        <div class="blog-heading">
+          <h1 class="blog-title" th:text="${post.title}">Title</h1><br>
+          <th:block th:if="${sessionUser} == ${post.author} ">
+            <a th:href="@{'/edit/' + ${post.id}}"  class="button5" style="background-color:#42cc8c;">Edit</a>
+            <a th:href="@{'/delete/' + ${post.id}}" class="button5" style="background-color:#42cc8c;">Delete</a>
+          </th:block>
+        </div>
+        <br>
+        <div>
+          Published Date:
+          <h5 th:text="${post.publishedAt}"></h5>
+          Author:
+          <h5 th:text="${post.author}"></h5>
+          Tags:
+          <th:block th:each="tag : ${post.tags}">
+            <h5 th:text="'#'+${tag.name}"></h5>
+          </th:block>
+        </div>
+        <br>
+        <br>
+        <div class="content">
+          <p class="blog-content" th:text="${post.content}">Content</p>
+        </div>
+        <div class="comment">
+          <form th:action="@{'/savecomment/' + ${post.id}}" method="post">
+            <input type="hidden" name="postId" th:value="${post.id}" />
+            <input type="text" class="form-control" name="comment" placeholder="Type to comment" required/>
+            <input type="submit" value="Add Comment" />
+          </form>
+        </div>
+      </div>
+    </tr>
+    <br>
+    <tr th:each="comment : ${commentList}" class="blog-post-comment">
+      <div class="comment-content">
+          <td th:text="${sessionUser.name}"></td>
+          <td th:text="${comment.name}"></td>
+          <td th:text="${comment.email}"></td>
+          <td th:text="${comment.comment}"></td>
+          <td sec:authorize="isAuthenticated()" th:if="${admin} or ${user}!=null and ${user.email}==${comment.email}">
+            <form th:action="@{'/edit/'+${comment.id}}" method="get">
+              <input type="hidden" name="postId" th:value="${post.id}"/>
+              <input type="submit" value="Edit" class="btn btn-outline-info"/>
+            </form>
+        </td>
+        <td sec:authorize="isAuthenticated()" th:if="${(userId==post.authorId)||user.getRole().equals('ADMIN')}">
+      <form th:action="@{'/update/'+${comment.id}}" method="post">
+        <input type="hidden" name="postId" th:value="${post.id}"/> <br/>
+        <input type="text" name="comment" th:value="${comment.comment}" placeholder="add your Comment..."/>
+        <br/>
+        <input type="hidden" name="name" th:value="${comment.name}" placeholder="Your Name..."/> <br/>
+        <input type="hidden" name="email" th:value="${comment.email}" placeholder="Your Email..."/> <br/>
+        <input type="submit" value="Update Comment" class="btn btn-outline-primary"/>
+        <a th:href="@{'/deleteComment/'+${comment.id} + '/' + ${comment.postId}}">Delete Comment</a>
+      </form>
+      </div>
+    </tr>
+  </table>
+<br>
+<br>
+</body>
+</html>

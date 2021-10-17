@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Home page</title>
+    <link crossorigin="anonymous"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          rel="stylesheet">
+</head>
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    width: 100%;
+    position: relative;
+    font-family: 'poppins', sans-serif;
+}
+.blog-card{
+    padding: 12px 5vw;
+    display: grid;
+    border: solid;
+    border:5px groove black;
+    border-radius: 5px;
+}
+.blog-heading {
+  display: flex;
+}
+.blog-heading h1 {
+  flex-grow: 1;
+  text-align: center;
+}
+.blog-post {
+  border:none;
+  border-radius: 10px;
+}
+.readme {
+text-align: center;
+float: right;
+}
+#sortButton {
+    float: right;
+}
+
+
+</style>
+<body>
+<h1>Blog Pozzt</h1>
+<th:block sec:authorize="!isAuthenticated()">
+    <a class="btn btn-primary btn-sm mb-3" th:href="@{/login}">Login</a>
+</th:block>
+
+<th:block sec:authorize="!isAuthenticated()">
+    <a class="btn btn-primary btn-sm mb-3" th:href="@{/registration}">Register</a>
+</th:block>
+
+<th:block  sec:authorize="isAuthenticated()">
+    <a class="btn btn-primary btn-sm mb-3" th:href="@{/logout}" sec:authorize="isAuthenticated()">Log Out</a>
+</th:block>
+
+<a th:href="@{'/page/' + ${currentPage} + '?sortField=publishedAt&sortDirection=' + ${reverseSortDirection}}"
+   class="readme">
+    Change Order
+</a>
+<br>
+<br>
+
+<form action="/filter" method="get" >
+    <select id="filter" name="filter">
+    <div>
+         <h5>By Author: </h5>
+        <th:block th:each="user: ${users}">
+            <div th:object="${user}">
+                    <input type="checkbox" name="authorId" th:value="${user.id}" />
+                    <label>[[${user.name}]]</label>
+            </div>
+        </th:block>
+    </div>
+
+    <div class="overflow-hidden">
+        <h5>By Tags: </h5>
+        <th:block th:each="tag: ${tags}">
+            <div th:object="${tag}">
+                    <input type="checkbox" name="tagId" th:value="${tag.id}" />
+                    <label>[[${tag.name}]]</label>
+            </div>
+        </th:block>
+    </div>
+    <input type="submit" value="Apply Changes" />
+    </select>
+</form>
+
+<br><br>
+
+<th:block th:if="${admin} OR ${sessionUser != null}">
+    <a class="btn btn-primary btn-sm mb-3" th:href="@{/addnewpost}">Publish New Post</a>
+</th:block>
+
+<div class="search container my-4">
+    <form th:action="'/page/' + ${currentPage} + '?sortField=publishedAt&sortDirection='
+        + ${reverseSortDirection} + ${keyword}">
+        <input type="hidden" name="sortField" th:value="${sortField}"/>
+        <input type="hidden" name="sortDirection" th:value="${sortDirection}"/>
+        <input type="text" class="form-control" name="keyword" th:value="${keyword}"
+               placeholder="Type to Search"/>
+        &nbsp;<br>
+        <input type="submit" value="Search"/>
+        &nbsp;
+        <input type="button" value="Clear" onclick="clearSearch()"/>
+    </form>
+</div>
+<table>
+    <tr th:each="post : ${postList}" class="blog-post">
+        <form th:action="@{'/post/'+${post.id}}">
+            <div class="blog-card">
+                <div class="blog-heading">
+                    <h1 class="blog-title" th:text="${post.title}">Title</h1>
+                    <span class="blog-date" th:text="${post.publishedAt}">PublishedAt</span>
+                </div>
+                <div class="content">
+                    <p class="blog-content" th:text="${post.excerpt+'...'}">Content</p>
+                    <button type="submit" class="readme-btn">Read More</button>
+                </div>
+            </div>
+        </form>
+        <br>
+    </tr>
+</table>
+
+<div th:if="${totalPages > 1}">
+    <div class="row col-sm-10">
+
+        <div class="col-sm-1">
+            <a th:if="${currentPage > 1}"
+               th:href="@{'/page/' + ${currentPage - 1} + ${keyword != null ? '?keyword=' + keyword : ''}}">Previous</a>
+            <span th:unless="${currentPage - 1 >= 1}">Previous</span> &nbsp;
+        </div>
+        <div class="col-sm-1">
+                <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                    <a th:if="${currentPage != i}"
+                       th:href="@{'/page/' + ${i} + ${keyword != null ? '?keyword=' + keyword : ''}}">[[${i}]]</a>
+                    <span th:unless="${currentPage != i}">[[${i}]]</span>
+                </span>
+        </div>
+        <div class="col-sm-1">
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{'/page/' + ${currentPage + 1} + ${keyword != null ? '?keyword=' + keyword : ''}}">Next</a>
+            <span th:unless="${currentPage <totalPages}">Next</span>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+        function clearSearch(){
+            window.location = '';
+        }
+</script>
+</body>
+</html>
